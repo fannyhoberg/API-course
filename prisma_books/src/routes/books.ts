@@ -118,7 +118,7 @@ router.delete("/books/:bookId", async (req, res) => {
  *
  * Link book to author(s)
  *
- * Vi skickar in vilket author id som ska kopplas på till den boken vi postar
+ * Vi skickar in vilket author id som ska kopplas på till den boken vi postar till
  */
 router.post("/books/:bookId/authors", async (req, res) => {
   const bookId = Number(req.params.bookId);
