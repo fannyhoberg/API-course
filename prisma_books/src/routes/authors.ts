@@ -30,9 +30,18 @@ router.get("/:authorId", show);
  */
 router.post("/", store);
 
-// Update info on author
+/**
+ * PATCH /author
+ *
+ * Update an author
+ */
 router.patch("/:authorId", update);
 
+/**
+ * DELETE /author
+ *
+ * Delete an author
+ */
 router.delete("/:authorId", destroy);
 
 export default router;

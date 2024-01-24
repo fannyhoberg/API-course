@@ -1,8 +1,10 @@
 // Author controller
-
+import Debug from "debug";
 import { Request, Response } from "express";
 import prisma from "../prisma";
 
+// Create a new debug instance
+const debug = Debug("prisma-books:author_controller");
 /**
  * Get all authors
  */
@@ -37,17 +39,20 @@ export const show = async (req: Request, res: Response) => {
   } catch (err: any) {
     if (err.code === "P2025") {
       // NotFoundError
-      console.log(err);
+      debug("Author with ID %d could not be found: %O", authorId, err);
       res.status(404).send({ message: "Author Not Found" });
     } else {
-      console.error(err);
+      debug(
+        "Error when trying to query for Author with ID %d: %O",
+        authorId,
+        err
+      );
       res
         .status(500)
         .send({ message: "Something went wrong when querying the database" });
     }
   }
 };
-
 /**
  * Create a author
  */
@@ -59,12 +64,9 @@ export const store = async (req: Request, res: Response) => {
     res.status(201).send(author);
   } catch (err) {
     console.error(err);
-    res
-      .status(500)
-      .send({
-        message:
-          "Something went wrong when creating the record in the database",
-      });
+    res.status(500).send({
+      message: "Something went wrong when creating the record in the database",
+    });
   }
 };
 
