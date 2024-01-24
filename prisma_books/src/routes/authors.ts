@@ -7,7 +7,7 @@ const router = express.Router();
  *
  * Get all authors
  */
-router.get("/authors", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const authors = await prisma.author.findMany();
     res.send(authors);
@@ -24,7 +24,7 @@ router.get("/authors", async (req, res) => {
  *
  * Get specific author
  */
-router.get("/authors/:authorId", async (req, res) => {
+router.get("/:authorId", async (req, res) => {
   const authorId = Number(req.params.authorId);
 
   try {
@@ -56,7 +56,7 @@ router.get("/authors/:authorId", async (req, res) => {
  *
  * Create an author
  */
-router.post("/authors", async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const author = await prisma.author.create({
       data: req.body,
@@ -71,7 +71,7 @@ router.post("/authors", async (req, res) => {
 });
 
 // Update info on author
-router.patch("/authors/:authorId", async (req, res) => {
+router.patch("/:authorId", async (req, res) => {
   const authorId = Number(req.params.authorId);
 
   try {
@@ -89,7 +89,7 @@ router.patch("/authors/:authorId", async (req, res) => {
   }
 });
 
-router.delete("/authors/:authorId", async (req, res) => {
+router.delete("/:authorId", async (req, res) => {
   const authorId = Number(req.params.authorId);
 
   try {

@@ -13,9 +13,10 @@ router.get("/", (req, res) => {
   });
 });
 
-router.use(authorRoutes);
-router.use(bookRoutes);
-router.use(publisherRoutes);
+// lägger till en sökväg så den inte ska behöva kolla alla routes, utan endast den vi vill nå
+router.use("/authors", authorRoutes);
+router.use("/books", bookRoutes);
+router.use("/publishers", publisherRoutes);
 
 /**
  * Catch-all route handler

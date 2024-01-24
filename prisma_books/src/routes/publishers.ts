@@ -7,7 +7,7 @@ const router = express.Router();
  *
  * Get all publisher
  */
-router.get("/publishers", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const publishers = await prisma.publisher.findMany();
     res.send(publishers);
@@ -24,7 +24,7 @@ router.get("/publishers", async (req, res) => {
  *
  * Get specific book
  */
-router.get("/publishers/:publisherId", async (req, res) => {
+router.get("/:publisherId", async (req, res) => {
   const publisherId = Number(req.params.publisherId);
 
   try {
@@ -57,7 +57,7 @@ router.get("/publishers/:publisherId", async (req, res) => {
 *
 * Post all publishers
 */
-router.post("/publishers", async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const publisher = await prisma.publisher.create({
       data: req.body,
@@ -78,7 +78,7 @@ router.post("/publishers", async (req, res) => {
  *
  * Vi skickar in vilket author id som ska kopplas på till den boken vi postar
  */
-router.post("/publishers/:publisherId/books", async (req, res) => {
+router.post("/:publisherId/books", async (req, res) => {
   const publisherId = Number(req.params.publisherId);
 
   try {

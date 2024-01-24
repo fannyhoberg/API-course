@@ -7,7 +7,7 @@ const router = express.Router();
  *
  * Get all books
  */
-router.get("/books", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const books = await prisma.book.findMany();
     res.send(books);
@@ -24,7 +24,7 @@ router.get("/books", async (req, res) => {
  *
  * Get specific book
  */
-router.get("/books/:bookId", async (req, res) => {
+router.get("/:bookId", async (req, res) => {
   const bookId = Number(req.params.bookId);
 
   try {
@@ -56,7 +56,7 @@ router.get("/books/:bookId", async (req, res) => {
  *
  * Create an book
  */
-router.post("/books", async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const book = await prisma.book.create({
       data: req.body,
@@ -71,7 +71,7 @@ router.post("/books", async (req, res) => {
 });
 
 // Update info on book
-router.patch("/books/:bookId", async (req, res) => {
+router.patch("/:bookId", async (req, res) => {
   const bookId = Number(req.params.bookId);
 
   try {
@@ -91,7 +91,7 @@ router.patch("/books/:bookId", async (req, res) => {
 
 // Delete book
 
-router.delete("/books/:bookId", async (req, res) => {
+router.delete("/:bookId", async (req, res) => {
   const bookId = Number(req.params.bookId);
 
   try {
@@ -120,7 +120,7 @@ router.delete("/books/:bookId", async (req, res) => {
  *
  * Vi skickar in vilket author id som ska kopplas på till den boken vi postar till
  */
-router.post("/books/:bookId/authors", async (req, res) => {
+router.post("/:bookId/authors", async (req, res) => {
   const bookId = Number(req.params.bookId);
 
   try {
@@ -150,7 +150,7 @@ router.post("/books/:bookId/authors", async (req, res) => {
  *
  * Unlink an author from a book
  */
-router.delete("/books/:bookId/authors/:authorId", async (req, res) => {
+router.delete("/:bookId/authors/:authorId", async (req, res) => {
   const bookId = Number(req.params.bookId);
   const authorId = Number(req.params.authorId);
 
