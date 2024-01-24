@@ -1,7 +1,11 @@
 // Publishers controller
+import Debug from "debug";
 
 import { Request, Response } from "express";
 import prisma from "../prisma";
+
+// Create a new debug instance
+const debug = Debug("prisma-books:book_controller");
 
 // Get all publishers
 export const index = async (req: Request, res: Response) => {
@@ -33,9 +37,14 @@ export const show = async (req: Request, res: Response) => {
     if (err.code === "P2025") {
       // NotFoundError
       console.log(err);
-      res.status(404).send({ message: "Book Not Found" });
+      res.status(404).send({ message: "Publisher Not Found" });
     } else {
-      console.error(err);
+      debug(
+        "Error when trying to query for publisher with ID %d: %O",
+        publisherId,
+        err
+      );
+      // console.error(err);
       res
         .status(500)
         .send({ message: "Something went wrong when querying the database" });
@@ -50,7 +59,8 @@ export const store = async (req: Request, res: Response) => {
     });
     res.status(201).send(publisher);
   } catch (err) {
-    console.error(err);
+    debug("Error when trying to create a new publisher: %O", err);
+    // console.error(err);
     res.status(500).send({
       message: "Something went wrong when creating the record in the database",
     });
@@ -74,7 +84,11 @@ export const update = async (req: Request, res: Response) => {
   } catch (err: any) {
     if (err.code === "P2025") {
       // NotFoundError
-      console.log(err);
+      debug(
+        "Error when trying to update publisher with ID %d: %O",
+        publisherId,
+        err
+      );
       res.status(404).send({ message: "Publisher Not Found" });
     } else {
       console.error(err);
@@ -104,7 +118,13 @@ export const destroy = async (req: Request, res: Response) => {
       console.log(err);
       res.status(404).send({ message: "Publisher Not Found" });
     } else {
-      console.error(err);
+      // console.error(err);
+      debug(
+        "Error when trying to delete Book with ID %d: %O",
+        publisherId,
+        err
+      );
+
       res
         .status(500)
         .send({ message: "Something went wrong when querying the database" });

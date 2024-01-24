@@ -1,5 +1,6 @@
 import express from "express";
-import prisma from "../prisma";
+import { body } from "express-validator";
+// import prisma from "../prisma";
 import {
   index,
   show,
@@ -28,7 +29,19 @@ router.get("/:authorId", show);
  *
  * Create an author
  */
-router.post("/", store);
+router.post(
+  "/",
+  [
+    body("name")
+      .isString()
+      .withMessage("has to be a string")
+      .bail()
+      .isLength({ min: 3, max: 191 })
+      .withMessage("has to be 3-191 chars long"),
+    body("birthyear").optional().isInt().withMessage("has to be an integer"),
+  ],
+  store
+);
 
 /**
  * PATCH /author
