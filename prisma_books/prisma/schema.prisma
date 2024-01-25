@@ -31,9 +31,9 @@ model Publisher {
 }
 
 model User {
-  id    Int    @id @default(autoincrement()) @db.UnsignedInt
-  name  String
-  email String
+  id       Int    @id @default(autoincrement()) @db.UnsignedInt
+  name     String
+  email    String @unique
   password String
-  books Book[]
+  books    Book[]
 }

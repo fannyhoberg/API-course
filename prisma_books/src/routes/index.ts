@@ -2,6 +2,9 @@ import express from "express";
 import authorRoutes from "./authors";
 import bookRoutes from "./books";
 import publisherRoutes from "./publishers";
+import { register } from "../controllers/register_controller";
+import { body } from "express-validator";
+
 const router = express.Router();
 
 /**
@@ -17,6 +20,33 @@ router.get("/", (req, res) => {
 router.use("/authors", authorRoutes);
 router.use("/books", bookRoutes);
 router.use("/publishers", publisherRoutes);
+
+// POST register
+router.post(
+  "/register",
+  [
+    body("name")
+      .isString()
+      .withMessage("has to be a string")
+      .bail()
+      .isLength({ min: 3 })
+      .withMessage("has to be at least 3 chars long"),
+    body("email")
+      .isString()
+      .withMessage("has to be a string")
+      .bail()
+      .isEmail()
+      .withMessage("has to be a valid email"),
+    body("password")
+      .isString()
+      .withMessage("has to be a string")
+      .bail()
+      .isLength({ min: 6 })
+      .withMessage("has to be at least 6 chars long")
+      .trim(),
+  ],
+  register
+);
 
 /**
  * Catch-all route handler
