@@ -27,22 +27,18 @@ router.post(
   [
     body("name")
       .isString()
-      .withMessage("has to be a string")
+      .withMessage("name has to be a string")
       .bail()
+      .trim()
       .isLength({ min: 3 })
-      .withMessage("has to be at least 3 chars long"),
-    body("email")
-      .isString()
-      .withMessage("has to be a string")
-      .bail()
-      .isEmail()
-      .withMessage("has to be a valid email"),
+      .withMessage("name has to be at least 3 chars long"),
+    body("email").trim().isEmail().withMessage("email has to be a valid email"),
     body("password")
       .isString()
-      .withMessage("has to be a string")
+      .withMessage("password has to be a string")
       .bail()
       .isLength({ min: 6 })
-      .withMessage("has to be at least 6 chars long")
+      .withMessage("password has to be at least 6 chars long")
       .trim(),
   ],
   register

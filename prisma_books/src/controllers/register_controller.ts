@@ -1,8 +1,9 @@
 /**
  * Register Controller
  */
+import bcrypt from "bcrypt";
 import { Request, Response } from "express";
-import { validationResult } from "express-validator";
+import { matchedData, validationResult } from "express-validator";
 import prisma from "../prisma";
 import Debug from "debug";
 
@@ -24,10 +25,33 @@ export const register = async (req: Request, res: Response) => {
     return;
   }
 
+  debug("req.body: %O", req.body);
+
+  const validatedData = matchedData(req);
+  debug("validatedData: %O", validatedData);
+
   // Calculate a hash + salt for the password
+  const hashed_password = await bcrypt.hash(validatedData.password, 10);
+  debug("plaintext password:", validatedData.password);
+  debug("hashed password:", hashed_password);
 
   // Store the user in the database
-
+  try {
+    const user = await prisma.user.create({
+      data: req.body,
+    });
+    res.status(201).send({
+      status: "success",
+      data: user,
+    });
+  } catch (err) {
+    // console.error(err);
+    debug("Error when trying to create a new user: %O", err);
+    res.status(500).send({
+      status: "error",
+      message: "Something went wrong when creating the record in the database",
+    });
+  }
   // Respond with 201 Created + status success
-  res.status(201).send({ status: "success", data: req.body });
+  //   res.status(201).send({ status: "success", data: req.body });
 };
