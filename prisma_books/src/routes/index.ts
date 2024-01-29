@@ -2,8 +2,10 @@ import express from "express";
 import authorRoutes from "./authors";
 import bookRoutes from "./books";
 import publisherRoutes from "./publishers";
+import profileRoutes from "./profile";
 import { register } from "../controllers/register_controller";
 import { createUserRules } from "../validations/user_rules";
+import { basic } from "../middlewares/auth/basic";
 
 const router = express.Router();
 
@@ -23,6 +25,13 @@ router.use("/publishers", publisherRoutes);
 
 // POST register
 router.post("/register", createUserRules, register);
+
+/**
+ * /profile
+ *
+ */
+
+router.use("/profile", basic, profileRoutes);
 
 /**
  * Catch-all route handler
