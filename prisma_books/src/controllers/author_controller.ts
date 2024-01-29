@@ -1,13 +1,17 @@
 // Author controller
+import { match } from "assert";
 import Debug from "debug";
 import { Request, Response } from "express";
-import { validationResult } from "express-validator";
+import { matchedData, validationResult } from "express-validator";
 import prisma from "../prisma";
 import {
+  createAuthor,
   deleteAuthor,
   getAuthor,
   getAuthors,
+  updateAuthor,
 } from "../services/author_service";
+import { CreateAuthor } from "../types/Author_types";
 
 // Create a new debug instance
 const debug = Debug("prisma-books:author_controller");
@@ -74,10 +78,10 @@ export const store = async (req: Request, res: Response) => {
     return;
   }
 
+  const validatedData = matchedData(req) as CreateAuthor;
+
   try {
-    const author = await prisma.author.create({
-      data: req.body,
-    });
+    const author = await createAuthor(validatedData);
     res.status(201).send(author);
   } catch (err) {
     debug("Error when trying to create a new author: %O", err);
@@ -96,12 +100,7 @@ export const update = async (req: Request, res: Response) => {
   const authorId = Number(req.params.authorId);
 
   try {
-    const author = await prisma.author.update({
-      where: {
-        id: authorId,
-      },
-      data: req.body,
-    });
+    const author = await updateAuthor(authorId, req.body);
     res.send({
       status: "success",
       data: author,

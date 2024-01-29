@@ -1,7 +1,9 @@
 /**
  * Author Service
  */
+import { Author } from "@prisma/client";
 import prisma from "../prisma";
+import { CreateAuthor, UpdateAuthor } from "../types/Author_types";
 
 /**
  * Get all authors
@@ -23,6 +25,30 @@ export const getAuthor = async (authorId: number) => {
     include: {
       books: true,
     },
+  });
+};
+
+/**
+ * Create an author
+ *
+ */
+
+export const createAuthor = async (data: CreateAuthor) => {
+  return await prisma.author.create({
+    data,
+  });
+};
+
+/**
+ * Update author
+ */
+
+export const updateAuthor = async (authorId: number, data: UpdateAuthor) => {
+  return await prisma.author.update({
+    where: {
+      id: authorId,
+    },
+    data,
   });
 };
 
