@@ -2,7 +2,7 @@
  * Validation rules for user resource
  */
 import { body } from "express-validator";
-import prisma from "../prisma";
+import { getUserByEmail } from "../services/user_service";
 
 export const createUserRules = [
   body("name")
@@ -19,15 +19,11 @@ export const createUserRules = [
     .bail()
     .custom(async (value) => {
       // check if a user with that email already exists
-      const user = await prisma.user.findUnique({
-        where: {
-          email: value,
-        },
-      });
+      const user = await getUserByEmail(value);
 
       if (user) {
         // user already exists, reject promise
-        // return Promise.reject("Email already exists");
+        // return Promise.reject("Email already exists"); -- är ett annat sätt att throw
         throw new Error("Email already exists in database");
       }
     }),
