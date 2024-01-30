@@ -38,7 +38,7 @@ export const register = async (req: Request, res: Response) => {
 
   // Store the user in the database
   try {
-    const user = await createUser(validatedData);
+    const user = await createUser(validatedData, hashed_password);
     res.status(201).send({
       status: "success",
       data: user,
