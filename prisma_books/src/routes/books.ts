@@ -9,6 +9,7 @@ import {
   addAuthor,
   removeAuthor,
 } from "../controllers/book_controller";
+import { createBookRules } from "../validations/book_rules";
 const router = express.Router();
 
 /**
@@ -30,7 +31,7 @@ router.get("/:bookId", show);
  *
  * Create an book
  */
-router.post("/", store);
+router.post("/", createBookRules, store);
 
 // Update info on book
 router.patch("/:bookId", update);

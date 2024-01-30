@@ -2,7 +2,15 @@
 import Debug from "debug";
 
 import { Request, Response } from "express";
-import prisma from "../prisma";
+import { matchedData, validationResult } from "express-validator";
+import {
+  createPublisher,
+  deletePublisher,
+  getPublisher,
+  getPublishers,
+  updatePublisher,
+} from "../services/publisher_service";
+import { CreatePublisher } from "../types/Publisher_types";
 
 // Create a new debug instance
 const debug = Debug("prisma-books:book_controller");
@@ -10,19 +18,17 @@ const debug = Debug("prisma-books:book_controller");
 // Get all publishers
 export const index = async (req: Request, res: Response) => {
   try {
-    const publishers = await prisma.publisher.findMany();
+    const publishers = await getPublishers();
     res.send({
       status: "success",
       data: publishers,
     });
   } catch (err) {
     console.error(err);
-    res
-      .status(500)
-      .send({
-        status: "error",
-        message: "Something went wrong when querying the database",
-      });
+    res.status(500).send({
+      status: "error",
+      message: "Something went wrong when querying the database",
+    });
   }
 };
 
@@ -30,14 +36,7 @@ export const show = async (req: Request, res: Response) => {
   const publisherId = Number(req.params.publisherId);
 
   try {
-    const publisher = await prisma.publisher.findUniqueOrThrow({
-      where: {
-        id: publisherId,
-      },
-      include: {
-        books: true,
-      },
-    });
+    const publisher = await getPublisher(publisherId);
     res.send({
       status: "success",
       data: publisher,
@@ -54,21 +53,29 @@ export const show = async (req: Request, res: Response) => {
         err
       );
       // console.error(err);
-      res
-        .status(500)
-        .send({
-          status: "error",
-          message: "Something went wrong when querying the database",
-        });
+      res.status(500).send({
+        status: "error",
+        message: "Something went wrong when querying the database",
+      });
     }
   }
 };
 
 export const store = async (req: Request, res: Response) => {
-  try {
-    const publisher = await prisma.publisher.create({
-      data: req.body,
+  // Check for any validation errors
+  const validationErrors = validationResult(req);
+  if (!validationErrors.isEmpty()) {
+    res.status(400).send({
+      status: "fail",
+      data: validationErrors.array(),
     });
+    return;
+  }
+
+  const validatedData = matchedData(req) as CreatePublisher;
+
+  try {
+    const publisher = await createPublisher(validatedData);
     res.status(201).send({
       status: "success",
       data: publisher,
@@ -90,12 +97,7 @@ export const update = async (req: Request, res: Response) => {
   const publisherId = Number(req.params.publisherId);
 
   try {
-    const publisher = await prisma.publisher.update({
-      where: {
-        id: publisherId,
-      },
-      data: req.body,
-    });
+    const publisher = await updatePublisher(publisherId, req.body);
     res.status(200).send({
       status: "success",
       data: publisher,
@@ -111,12 +113,10 @@ export const update = async (req: Request, res: Response) => {
       res.status(404).send({ status: "error", message: "Publisher Not Found" });
     } else {
       console.error(err);
-      res
-        .status(500)
-        .send({
-          status: "error",
-          message: "Something went wrong when querying the database",
-        });
+      res.status(500).send({
+        status: "error",
+        message: "Something went wrong when querying the database",
+      });
     }
   }
 };
@@ -128,11 +128,7 @@ export const destroy = async (req: Request, res: Response) => {
   const publisherId = Number(req.params.publisherId);
 
   try {
-    await prisma.publisher.delete({
-      where: {
-        id: publisherId,
-      },
-    });
+    await deletePublisher(publisherId);
     res.status(200).send({
       status: "success",
       data: {},
@@ -150,12 +146,10 @@ export const destroy = async (req: Request, res: Response) => {
         err
       );
 
-      res
-        .status(500)
-        .send({
-          status: "error",
-          message: "Something went wrong when querying the database",
-        });
+      res.status(500).send({
+        status: "error",
+        message: "Something went wrong when querying the database",
+      });
     }
   }
 };

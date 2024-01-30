@@ -3,7 +3,6 @@ import { match } from "assert";
 import Debug from "debug";
 import { Request, Response } from "express";
 import { matchedData, validationResult } from "express-validator";
-import prisma from "../prisma";
 import {
   createAuthor,
   deleteAuthor,

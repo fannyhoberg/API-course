@@ -4,8 +4,9 @@
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import { matchedData, validationResult } from "express-validator";
-import prisma from "../prisma";
 import Debug from "debug";
+import { createUser } from "../services/user_service";
+import { CreateUser } from "../types/User_types";
 
 const debug = Debug("prisma-books:book_controller");
 
@@ -27,7 +28,7 @@ export const register = async (req: Request, res: Response) => {
 
   debug("req.body: %O", req.body);
 
-  const validatedData = matchedData(req);
+  const validatedData = matchedData(req) as CreateUser;
   debug("validatedData: %O", validatedData);
 
   // Calculate a hash + salt for the password
@@ -37,9 +38,7 @@ export const register = async (req: Request, res: Response) => {
 
   // Store the user in the database
   try {
-    const user = await prisma.user.create({
-      data: req.body,
-    });
+    const user = await createUser(validatedData);
     res.status(201).send({
       status: "success",
       data: user,

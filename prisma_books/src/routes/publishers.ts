@@ -7,6 +7,7 @@ import {
   update,
   destroy,
 } from "../controllers/publisher_controller";
+import { createPublisherRules } from "../validations/publisher_rules";
 const router = express.Router();
 
 /**
@@ -29,7 +30,7 @@ router.get("/:publisherId", show);
 *
 * Post all publishers
 */
-router.post("/", store);
+router.post("/", createPublisherRules, store);
 
 /**
  * PATCH /publishers/:publisherId
