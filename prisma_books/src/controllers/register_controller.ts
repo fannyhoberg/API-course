@@ -36,9 +36,14 @@ export const register = async (req: Request, res: Response) => {
   debug("plaintext password:", validatedData.password);
   debug("hashed password:", hashed_password);
 
+  const data = {
+    ...validatedData,
+    password: hashed_password, // här ersätter vi password med hashed password så vi inte skickar med lösenordet i klartext
+  } as CreateUser;
+
   // Store the user in the database
   try {
-    const user = await createUser(validatedData, hashed_password);
+    const user = await createUser(data);
     res.status(201).send({
       status: "success",
       data: user,
