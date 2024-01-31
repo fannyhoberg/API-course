@@ -2,13 +2,15 @@
  * Register Controller
  */
 import bcrypt from "bcrypt";
+import Debug from "debug";
 import { Request, Response } from "express";
 import { matchedData, validationResult } from "express-validator";
-import Debug from "debug";
+import prisma from "../prisma";
 import { createUser } from "../services/user_service";
 import { CreateUser } from "../types/User_types";
 
-const debug = Debug("prisma-books:book_controller");
+// Create a new debug instance
+const debug = Debug("prisma-books:register_controller");
 
 /**
  * Register a new user
@@ -26,9 +28,8 @@ export const register = async (req: Request, res: Response) => {
     return;
   }
 
-  debug("req.body: %O", req.body);
-
-  const validatedData = matchedData(req) as CreateUser;
+  // Get only the validated data from the request
+  const validatedData = matchedData(req);
   debug("validatedData: %O", validatedData);
 
   // Calculate a hash + salt for the password
@@ -38,24 +39,19 @@ export const register = async (req: Request, res: Response) => {
 
   const data = {
     ...validatedData,
-    password: hashed_password, // här ersätter vi password med hashed password så vi inte skickar med lösenordet i klartext
+    password: hashed_password,
   } as CreateUser;
 
   // Store the user in the database
   try {
     const user = await createUser(data);
-    res.status(201).send({
-      status: "success",
-      data: user,
-    });
+
+    // Respond with 201 Created + status success
+    res.status(201).send({ status: "success", data: user });
   } catch (err) {
-    // console.error(err);
-    debug("Error when trying to create a new user: %O", err);
-    res.status(500).send({
-      status: "error",
-      message: "Something went wrong when creating the record in the database",
-    });
+    debug("Error when trying to create User: %O", err);
+    return res
+      .status(500)
+      .send({ status: "error", message: "Could not create user in database" });
   }
-  // Respond with 201 Created + status success
-  //   res.status(201).send({ status: "success", data: req.body });
 };
