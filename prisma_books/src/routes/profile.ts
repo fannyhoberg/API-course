@@ -1,5 +1,9 @@
 import express from "express";
-import { getBooks, getProfile } from "../controllers/profile_controller";
+import {
+  addBooks,
+  getBooks,
+  getProfile,
+} from "../controllers/profile_controller";
 const router = express.Router();
 
 /**
@@ -15,5 +19,10 @@ router.get("/", getProfile);
  * Get the authenticated user's books
  */
 router.get("/books", getBooks);
+
+/**
+ * Add books to Profile
+ */
+router.post("/books", addBooks);
 
 export default router;

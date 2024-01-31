@@ -79,6 +79,8 @@ export const basic = async (
 
   // 8. Attach user to request
 
+  req.user = user; // tillägg i types/express/index.ts samt ts.config.json längst ner, för att detta ska funka
+
   // 9. Profit 💰🤑
   next();
 };
