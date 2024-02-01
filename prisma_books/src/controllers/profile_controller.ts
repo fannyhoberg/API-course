@@ -31,11 +31,27 @@ export const getProfile = async (req: Request, res: Response) => {
  * Get the authenticated user's books
  */
 export const getBooks = async (req: Request, res: Response) => {
-  const books = await getUserBooks(req.user.id);
-  res.send({
-    status: "success",
-    data: books,
-  });
+  if (!req.user) {
+    throw new Error(
+      "Trying to access autenticated user but none exists. Did you remove autentication from this route? 🤬"
+    );
+  }
+
+  const userId = req.user.id;
+
+  try {
+    const books = await getUserBooks(userId);
+    res.send({
+      status: "success",
+      data: books,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({
+      status: "error",
+      message: "Something went wrong when querying the database",
+    });
+  }
 };
 
 /**
@@ -43,7 +59,13 @@ export const getBooks = async (req: Request, res: Response) => {
  *
  */
 export const addBooks = async (req: Request, res: Response) => {
-  const userId = Number(req.user?.id);
+  if (!req.user) {
+    throw new Error(
+      "Trying to access autenticated user but none exists. Did you remove autentication from this route? 🤬"
+    );
+  }
+
+  const userId = req.user.id;
 
   try {
     const user = await addUserToBook(userId, req.body);
@@ -53,10 +75,10 @@ export const addBooks = async (req: Request, res: Response) => {
       // NotFoundError
       res
         .status(404)
-        .send({ status: "error", message: "Book or Author Not Found" });
+        .send({ status: "error", message: "Book or User Not Found" });
     } else {
       debug(
-        "Error when trying to add Authors %o to Book with ID %d: %O",
+        "Error when trying to add Users %o to User with ID %d: %O",
         req.body,
         userId,
         err
