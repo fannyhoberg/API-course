@@ -46,7 +46,7 @@ export const createUser = async (data: CreateUser) => {
  */
 
 export const getUserBooks = async (userId: number) => {
-  return await prisma.user.findUnique({
+  return await prisma.user.findUniqueOrThrow({
     where: {
       id: userId,
     },
@@ -61,11 +61,11 @@ export const getUserBooks = async (userId: number) => {
  *
  */
 
-export const addUserToBook = async (
+export const addUserBooks = async (
   userId: number,
   bookIds: BookId | BookId[]
 ) => {
-  return await prisma.user.update({
+  const user = await prisma.user.update({
     where: {
       id: userId,
     },
@@ -74,7 +74,33 @@ export const addUserToBook = async (
         connect: bookIds,
       },
     },
-    include: {
+    select: {
+      // select gör att det endast är books vi kommer att se, tillskillnad från include där vi även får med profile
+      books: true,
+    },
+  });
+  return user.books;
+};
+
+/**
+ * Remove book from User
+ *
+ */
+
+export const deleteUserBook = async (userId: number, bookId: number) => {
+  return await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      books: {
+        disconnect: {
+          id: bookId,
+        },
+      },
+    },
+    select: {
+      // select gör att det endast är books vi kommer att se, tillskillnad från include där vi även får med profile
       books: true,
     },
   });

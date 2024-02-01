@@ -4,6 +4,7 @@ import {
   getBooks,
   getProfile,
 } from "../controllers/profile_controller";
+import { deleteBook } from "../services/book_service";
 const router = express.Router();
 
 /**
@@ -21,8 +22,17 @@ router.get("/", getProfile);
 router.get("/books", getBooks);
 
 /**
+ * POST /profile/books
+ *
  * Add books to Profile
  */
 router.post("/books", addBooks);
+
+/**
+ * DELETE /books/:userId
+ *
+ * Unlink a book from a user
+ */
+router.delete("/books/:bookId", deleteBook);
 
 export default router;
