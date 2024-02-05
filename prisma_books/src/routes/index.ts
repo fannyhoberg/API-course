@@ -3,7 +3,7 @@ import authorRoutes from "./authors";
 import bookRoutes from "./books";
 import publisherRoutes from "./publishers";
 import profileRoutes from "./profile";
-import { register } from "../controllers/register_controller";
+import { login, register } from "../controllers/user_controller";
 import { createUserRules } from "../validations/user_rules";
 import { basic } from "../middlewares/auth/basic";
 
@@ -23,8 +23,18 @@ router.use("/authors", authorRoutes);
 router.use("/books", bookRoutes);
 router.use("/publishers", publisherRoutes);
 
-// POST register
-router.post("/register", createUserRules, register);
+/**
+ * POST /login
+ *
+ * Log in a user.
+ */
+router.post("/login", login);
+
+/**
+ * POST /register
+ *
+ * Register a new user.
+ */ router.post("/register", createUserRules, register);
 
 /**
  * /profile
