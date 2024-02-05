@@ -41,13 +41,13 @@ export const getProfile = async (req: Request, res: Response) => {
 export const getBooks = async (req: Request, res: Response) => {
   // If someone ever removes authentication from the route for this method
   // för att kunna använda req.user i princip
-  if (!req.user) {
+  if (!req.token) {
     throw new Error(
       "Trying to access autenticated user but none exists. Did you remove autentication from this route? 🤬"
     );
   }
 
-  const userId = req.user.id;
+  const userId = req.token.sub;
 
   try {
     const books = await getUserBooks(userId);
@@ -71,13 +71,13 @@ export const getBooks = async (req: Request, res: Response) => {
 export const addBooks = async (req: Request, res: Response) => {
   // If someone ever removes authentication from the route for this method
   // för att kunna använda req.user i princip
-  if (!req.user) {
+  if (!req.token) {
     throw new Error(
       "Trying to access autenticated user but none exists. Did you remove autentication from this route? 🤬"
     );
   }
 
-  const userId = req.user.id;
+  const userId = req.token.sub;
 
   try {
     const user = await addUserBooks(userId, req.body);
@@ -106,13 +106,13 @@ export const addBooks = async (req: Request, res: Response) => {
 export const deleteBook = async (req: Request, res: Response) => {
   // If someone ever removes authentication from the route for this method
   // för att kunna använda req.user i princip
-  if (!req.user) {
+  if (!req.token) {
     throw new Error(
       "Trying to access autenticated user but none exists. Did you remove autentication from this route? 🤬"
     );
   }
 
-  const userId = req.user.id;
+  const userId = req.token.sub;
   const bookId = Number(req.params.bookId);
 
   try {
