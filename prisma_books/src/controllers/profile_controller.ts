@@ -16,18 +16,22 @@ const debug = Debug("prisma-books:profile_controller");
  * Get the authenticated user's profile
  */
 export const getProfile = async (req: Request, res: Response) => {
-  if (!req.user) {
+  if (!req.token) {
     throw new Error(
       "Trying to access autenticated user but none exists. Did you remove autentication from this route? 🤬"
     );
   }
 
   // 🤷🏼‍♂️
-  debug("User: %O", req.user); //req.user är den inloggade användaren
+  debug("User: %O", req.token); //req.user är den inloggade användaren
 
   res.send({
     status: "success",
-    data: req.user,
+    data: {
+      id: req.token.sub,
+      name: req.token.name,
+      email: req.token.email,
+    },
   });
 };
 

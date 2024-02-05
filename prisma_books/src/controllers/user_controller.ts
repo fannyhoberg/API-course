@@ -7,6 +7,7 @@ import { Request, Response } from "express";
 import { matchedData, validationResult } from "express-validator";
 import jwt from "jsonwebtoken";
 import { createUser, getUserByEmail } from "../services/user_service";
+import { JwtPayload } from "../types/Token_types";
 import { CreateUser } from "../types/User_types";
 
 // Create a new debug instance
@@ -42,7 +43,7 @@ export const login = async (req: Request, res: Response) => {
 
   // construct jwt-payload
 
-  const payload = {
+  const payload: JwtPayload = {
     sub: user.id, // sub = subject, whom the token refers to
     name: user.name,
     email: user.email,
@@ -60,6 +61,7 @@ export const login = async (req: Request, res: Response) => {
   const access_token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET);
 
   // respond with access-token
+
   res.send({
     status: "success",
     data: {
