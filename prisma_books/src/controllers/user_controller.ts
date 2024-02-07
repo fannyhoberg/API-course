@@ -7,7 +7,7 @@ import { Request, Response } from "express";
 import { matchedData, validationResult } from "express-validator";
 import jwt from "jsonwebtoken";
 import { createUser, getUserByEmail } from "../services/user_service";
-import { JwtPayload } from "../types/Token_types";
+import { JwtPayload, JwtRefreshPayload } from "../types/Token_types";
 import { CreateUser } from "../types/User_types";
 
 // Create a new debug instance
@@ -59,23 +59,41 @@ export const login = async (req: Request, res: Response) => {
   }
 
   const access_token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: process.env.ACCESS_TOKEN_LIFETIME || "4h",
+    expiresIn: process.env.ACCESS_TOKEN_LIFETIME || "5m",
   });
 
-  // respond with access-token
+  // construct jwt refresh-payload
+  const refreshPayload: JwtRefreshPayload = {
+    sub: user.id,
+  };
+
+  // sign payload with refresh-token
+  if (!process.env.REFRESH_TOKEN_SECRET) {
+    debug("REFRESH_TOKEN_SECRET missing in environment");
+    return res
+      .status(500)
+      .send({ status: "error", message: "No refresh token secret defined" });
+  }
+
+  const refresh_token = jwt.sign(
+    refreshPayload,
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: process.env.REFRESH_TOKEN_LIFETIME || "1d" }
+  );
+
+  // respond with access-token and refresh token
 
   res.send({
     status: "success",
     data: {
       access_token,
+      refresh_token,
     },
   });
 };
 
 /**
  * Register a new user
- *
- * @todo validate incoming data and bail if validation fails
  */
 export const register = async (req: Request, res: Response) => {
   // Validate incoming data
@@ -95,7 +113,7 @@ export const register = async (req: Request, res: Response) => {
   // Calculate a hash + salt for the password
   const hashed_password = await bcrypt.hash(
     validatedData.password,
-    process.env.SALT_ROUNDS || 10
+    Number(process.env.SALT_ROUNDS) || 10
   );
   debug("plaintext password:", validatedData.password);
   debug("hashed password:", hashed_password);
