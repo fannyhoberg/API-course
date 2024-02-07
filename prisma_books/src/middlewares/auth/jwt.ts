@@ -31,7 +31,7 @@ export const validateAccessToken = async (
   debug("Authorization header: %o", req.headers.authorization);
   const [authSchema, token] = req.headers.authorization.split(" ");
 
-  // 3. Check that Authorization scheme is "Basic", otherwise bail 🛑
+  // 3. Check that Authorization scheme is "bearer", otherwise bail 🛑
   if (authSchema.toLowerCase() !== "bearer") {
     debug("Authorization schema isn't bearer");
     return res
