@@ -6,6 +6,7 @@ import profileRoutes from "./profile";
 import { login, refresh, register } from "../controllers/user_controller";
 import { createUserRules } from "../validations/user_rules";
 import { validateAccessToken } from "../middlewares/auth/jwt";
+import { loginRules } from "../validations/auth_rules";
 
 const router = express.Router();
 
@@ -28,7 +29,7 @@ router.use("/publishers", publisherRoutes);
  *
  * Log in a user.
  */
-router.post("/login", login);
+router.post("/login", loginRules, login);
 
 /**
  * POST /refresh
