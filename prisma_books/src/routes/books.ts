@@ -9,7 +9,8 @@ import {
   addAuthor,
   removeAuthor,
 } from "../controllers/book_controller";
-import { createBookRules } from "../validations/book_rules";
+import { createBookRules, updateBookRules } from "../validations/book_rules";
+import { validateRequest } from "../middlewares/validate_request";
 const router = express.Router();
 
 /**
@@ -31,10 +32,10 @@ router.get("/:bookId", show);
  *
  * Create an book
  */
-router.post("/", createBookRules, store);
+router.post("/", createBookRules, validateRequest, store);
 
 // Update info on book
-router.patch("/:bookId", update);
+router.patch("/:bookId", updateBookRules, validateRequest, update);
 
 // Delete book
 

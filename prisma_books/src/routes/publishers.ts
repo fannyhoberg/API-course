@@ -7,7 +7,11 @@ import {
   update,
   destroy,
 } from "../controllers/publisher_controller";
-import { createPublisherRules } from "../validations/publisher_rules";
+import {
+  createPublisherRules,
+  updatePublisherRules,
+} from "../validations/publisher_rules";
+import { validateRequest } from "../middlewares/validate_request";
 const router = express.Router();
 
 /**
@@ -30,14 +34,14 @@ router.get("/:publisherId", show);
 *
 * Post all publishers
 */
-router.post("/", createPublisherRules, store);
+router.post("/", createPublisherRules, validateRequest, store);
 
 /**
  * PATCH /publishers/:publisherId
  *
  * Update a publisher
  */
-router.patch("/:publisherId", update);
+router.patch("/:publisherId", updatePublisherRules, validateRequest, update);
 
 /**
  * DELETE /publishers/:publisherId

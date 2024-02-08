@@ -8,7 +8,11 @@ import {
   update,
   destroy,
 } from "../controllers/author_controller";
-import { createAuthorRules } from "../validations/author_rules";
+import { validateRequest } from "../middlewares/validate_request";
+import {
+  createAuthorRules,
+  updateAuthorRules,
+} from "../validations/author_rules";
 const router = express.Router();
 
 /**
@@ -30,14 +34,14 @@ router.get("/:authorId", show);
  *
  * Create an author
  */
-router.post("/", createAuthorRules, store);
+router.post("/", createAuthorRules, validateRequest, store);
 
 /**
  * PATCH /author
  *
  * Update an author
  */
-router.patch("/:authorId", update);
+router.patch("/:authorId", updateAuthorRules, validateRequest, update);
 
 /**
  * DELETE /author
