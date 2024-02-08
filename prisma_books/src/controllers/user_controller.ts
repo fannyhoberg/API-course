@@ -6,6 +6,7 @@ import Debug from "debug";
 import { Request, Response } from "express";
 import { matchedData, validationResult } from "express-validator";
 import jwt from "jsonwebtoken";
+import { extractAndValidateAuthHeader } from "../helpers/auth_helper";
 import {
   createUser,
   getUserByEmail,
@@ -114,25 +115,17 @@ export const login = async (req: Request, res: Response) => {
  * Authorization: Bearer <refresh-token>
  */
 export const refresh = async (req: Request, res: Response) => {
-  // 1. Make sure Authorization header exists, otherwise bail 🛑
-  if (!req.headers.authorization) {
-    debug("Authorization header missing");
+  let token: string; // ful-hack med tom sträng men för enkelhetens skull
+
+  try {
+    token = extractAndValidateAuthHeader(req, "Bearer");
+  } catch (err) {
+    if (err instanceof Error) {
+      return res.status(401).send({ status: "fail", message: err.message });
+    }
     return res
       .status(401)
-      .send({ status: "fail", message: "Authorization required" });
-  }
-
-  // 2. Split Authorization header on ` `
-  // "Bearer <token>"
-  debug("Authorization header: %o", req.headers.authorization);
-  const [authSchema, token] = req.headers.authorization.split(" ");
-
-  // 3. Check that Authorization scheme is "Bearer", otherwise bail 🛑
-  if (authSchema.toLowerCase() !== "bearer") {
-    debug("Authorization schema isn't Bearer");
-    return res
-      .status(401)
-      .send({ status: "fail", message: "Authorization required" });
+      .send({ status: "fail", message: "Unknown authorization" });
   }
 
   // 4. Verify refresh-token and extract refresh-payload, otherwise bail 🛑

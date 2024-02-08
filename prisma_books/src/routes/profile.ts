@@ -29,6 +29,13 @@ router.get("/books", getBooks);
 router.post("/books", addBooks);
 
 /**
+ * PATCH /profile/books
+ *
+ * Update Profile
+ */
+// router.patch("/", updateProfile)
+
+/**
  * DELETE /books/:userId
  *
  * Unlink a book from a user

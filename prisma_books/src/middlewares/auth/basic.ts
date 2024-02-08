@@ -4,6 +4,7 @@
 import bcrypt from "bcrypt";
 import Debug from "debug";
 import { Request, Response, NextFunction } from "express";
+import { extractAndValidateAuthHeader } from "../../helpers/auth_helper";
 import { getUserByEmail } from "../../services/user_service";
 
 // Create a new debug instance
@@ -15,29 +16,16 @@ export const basic = async (
   next: NextFunction
 ) => {
   debug("Hello from auth/basic! 🙋🏽");
-
-  // 1. Make sure Authorization header exists, otherwise bail 🛑
-  if (!req.headers.authorization) {
-    debug("Authorization header missing");
+  let base64Payload: string; // ful-hack med tom sträng men för enkelhetens skull
+  try {
+    base64Payload = extractAndValidateAuthHeader(req, "Basic");
+  } catch (err) {
+    if (err instanceof Error) {
+      return res.status(401).send({ status: "fail", message: err.message });
+    }
     return res
       .status(401)
-      .send({ status: "fail", message: "Authorization required" });
-  }
-
-  // 2. Split Authorization header on ` `
-  // "Basic am5AdGhlaGl2ZXJlc2lzdGFuY2UuY29tOmFiYzEyMw=="
-  // =>
-  // [0] => "Basic"
-  // [1] => "am5AdGhlaGl2ZXJlc2lzdGFuY2UuY29tOmFiYzEyMw=="
-  debug("Authorization header: %o", req.headers.authorization);
-  const [authSchema, base64Payload] = req.headers.authorization.split(" ");
-
-  // 3. Check that Authorization scheme is "Basic", otherwise bail 🛑
-  if (authSchema.toLowerCase() !== "basic") {
-    debug("Authorization schema isn't Basic");
-    return res
-      .status(401)
-      .send({ status: "fail", message: "Authorization required" });
+      .send({ status: "fail", message: "Unknown authorization" });
   }
 
   // 4. Decode credentials from base64 => ascii

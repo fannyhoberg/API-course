@@ -1,15 +1,11 @@
-/**
- * HTTP Basic Authentication Middleware
- */
 import Debug from "debug";
-import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
 import { JwtPayload } from "../../types/Token_types";
+import { extractAndValidateAuthHeader } from "../../helpers/auth_helper";
 
 // Create a new debug instance
 const debug = Debug("prisma-books:jwt");
-
-// const jwt = require("jsonwebtoken");
 
 export const validateAccessToken = async (
   req: Request,
@@ -17,66 +13,41 @@ export const validateAccessToken = async (
   next: NextFunction
 ) => {
   debug("Hello from auth/jwt! 🙋🏽");
-
-  // 1. Make sure Authorization header exists, otherwise bail 🛑
-  if (!req.headers.authorization) {
-    debug("Authorization header missing");
+  let token: string; // ful-hack med tom sträng men för enkelhetens skull
+  try {
+    token = extractAndValidateAuthHeader(req, "Bearer");
+  } catch (err) {
+    if (err instanceof Error) {
+      return res.status(401).send({ status: "fail", message: err.message });
+    }
     return res
       .status(401)
-      .send({ status: "fail", message: "Authorization required" });
+      .send({ status: "fail", message: "Unknown authorization" });
   }
 
-  // 2. Split Authorization header on ` `
-  // "Bearer <token>"
-  debug("Authorization header: %o", req.headers.authorization);
-  const [authSchema, token] = req.headers.authorization.split(" ");
-
-  // 3. Check that Authorization scheme is "bearer", otherwise bail 🛑
-  if (authSchema.toLowerCase() !== "bearer") {
-    debug("Authorization schema isn't bearer");
+  // 4. Verify token and attach payload to request, otherwise bail 🛑
+  if (!process.env.ACCESS_TOKEN_SECRET) {
+    debug("ACCESS_TOKEN_SECRET missing in environment");
     return res
-
-      .status(401)
-      .send({ status: "fail", message: "Authorization required" });
+      .status(500)
+      .send({ status: "error", message: "No access token secret defined" });
   }
-
-  /**
-   *
-   * skapa funktion av steg 1-3
-   *
-   * const extractAuthHeaderPayload = (req, schema: string) => {
-   * }
-   * extractAuthHeaderPayload(req, "bearer");
-   */
-
-  // 4. Verify token and attach payload to request, otherwise bail
-
+  // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsIm5hbWUiOiJTZWFuIEJhbmFuIiwiZW1haWwiOiJzZWFuQGJhbmFuLnNlIiwiaWF0IjoxNzA3MTMwMjQyfQ.0vyrKDgYOtPfqXdfK1FUdbrqzqI2-WzLn_cbHocWWiA"
   try {
     // Verify token
-
-    if (!process.env.ACCESS_TOKEN_SECRET) {
-      debug("ACCESS_TOKEN_SECRET missing in environment");
-      return res
-        .status(500)
-        .send({ status: "error", message: "No access token secret defined" });
-    }
-
-    const verifyToken = jwt.verify(
+    const payload = jwt.verify(
       token,
       process.env.ACCESS_TOKEN_SECRET
     ) as unknown as JwtPayload;
-
-    debug("Password for user was correct");
+    // debug("Payload: %O", payload);
 
     // Attach token payload to request
-
-    req.token = verifyToken;
-
-    // res.send(verifyToken);
-  } catch (error) {
-    debug("Jwt verify fail", error);
-
-    return res.status(401).send({ status: "fail", message: "Jwt verify fail" });
+    req.token = payload;
+  } catch (err) {
+    debug("JWT Verify failed: %O", err);
+    return res
+      .status(401)
+      .send({ status: "fail", message: "Authorization required" });
   }
 
   // 5. Profit 💰🤑
