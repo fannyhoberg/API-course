@@ -43,7 +43,8 @@ router.post("/refresh", refresh);
  * POST /register
  *
  * Register a new user.
- */ router.post("/register", createUserRules, validateRequest, register);
+ */
+router.post("/register", createUserRules, validateRequest, register);
 
 /**
  * /profile

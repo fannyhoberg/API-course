@@ -40,3 +40,36 @@ export const createUserRules = [
     .isLength({ min: 6 })
     .withMessage("password has to be at least 6 chars"),
 ];
+
+export const updateProfileRules = [
+  // name required + trimmed + at least 3 chars
+  body("name")
+    .optional()
+    .isString()
+    .trim()
+    .withMessage("name has to be a string"),
+  body("email")
+    .optional()
+    .trim()
+    .isEmail()
+    .withMessage("email has to be a valid email")
+    .custom(async (value) => {
+      // check if a User with that email already exists
+      const user = await getUserByEmail(value);
+
+      if (user) {
+        // user already exists, throw hissy-fit
+        // return Promise.reject("Email already exists");
+        throw new Error("Email already exists");
+      }
+    }),
+
+  body("password")
+    .optional()
+    .isString()
+    .withMessage("password has to be a string")
+    .bail()
+    .trim()
+    .notEmpty()
+    .withMessage("password cannot be empty"),
+];

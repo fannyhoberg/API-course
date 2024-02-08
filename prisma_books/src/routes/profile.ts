@@ -3,8 +3,11 @@ import {
   addBooks,
   getBooks,
   getProfile,
+  update,
 } from "../controllers/profile_controller";
+import { validateRequest } from "../middlewares/validate_request";
 import { deleteBook } from "../services/book_service";
+import { updateProfileRules } from "../validations/user_rules";
 const router = express.Router();
 
 /**
@@ -13,6 +16,13 @@ const router = express.Router();
  * Get the authenticated user's profile
  */
 router.get("/", getProfile);
+
+/**
+ * PATCH /profile/books
+ *
+ * Update Profile
+ */
+router.patch("/", updateProfileRules, validateRequest, update);
 
 /**
  * GET /profile/books
@@ -27,13 +37,6 @@ router.get("/books", getBooks);
  * Add books to Profile
  */
 router.post("/books", addBooks);
-
-/**
- * PATCH /profile/books
- *
- * Update Profile
- */
-// router.patch("/", updateProfile)
 
 /**
  * DELETE /books/:userId
