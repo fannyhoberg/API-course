@@ -1,6 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
 
+/**
+ * 
+Validate incoming requests
+ */
+
 export const validateRequest = (
   req: Request,
   res: Response,
@@ -8,6 +13,8 @@ export const validateRequest = (
 ) => {
   // Check for any validation errors
   const validationErrors = validationResult(req);
+
+  // if validation errors, respond with errors and stop request
   if (!validationErrors.isEmpty()) {
     res.status(400).send({
       status: "fail",
@@ -15,5 +22,6 @@ export const validateRequest = (
     });
     return;
   }
+  // If no validation errors was found, pass request along
   next();
 };

@@ -7,6 +7,7 @@ import { login, refresh, register } from "../controllers/user_controller";
 import { createUserRules } from "../validations/user_rules";
 import { validateAccessToken } from "../middlewares/auth/jwt";
 import { loginRules } from "../validations/auth_rules";
+import { validateRequest } from "../middlewares/validate_request";
 
 const router = express.Router();
 
@@ -29,7 +30,7 @@ router.use("/publishers", publisherRoutes);
  *
  * Log in a user.
  */
-router.post("/login", loginRules, login);
+router.post("/login", loginRules, validateRequest, login);
 
 /**
  * POST /refresh
@@ -42,7 +43,7 @@ router.post("/refresh", refresh);
  * POST /register
  *
  * Register a new user.
- */ router.post("/register", createUserRules, register);
+ */ router.post("/register", createUserRules, validateRequest, register);
 
 /**
  * /profile
