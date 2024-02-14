@@ -1,4 +1,5 @@
 import { model, Schema, Document } from "mongoose";
+import { PersonDocument } from "../person/person.model";
 
 // includes everything from interface MovieDocument and also from imported Document (from Mongoose, tex _id)
 // this is for developers, so we can use Typscript
@@ -8,6 +9,7 @@ export interface MovieDocument extends Document {
   release_year?: number;
   genres: string[];
   watched: Date;
+  director?: PersonDocument["_id"];
 }
 
 // Schema for mongoose, same as interface but we have to use mongoose structure
@@ -47,6 +49,10 @@ const MovieSchema: Schema = new Schema<MovieDocument>({
     default() {
       return Date.now();
     },
+  },
+  director: {
+    type: Schema.Types.ObjectId,
+    ref: "Person",
   },
 });
 
