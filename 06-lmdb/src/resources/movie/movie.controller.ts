@@ -34,7 +34,7 @@ export const show = async (req: Request, res: Response) => {
 
   try {
     // Find a single movie and show director (with populate)
-    const movie = await Movie.findById(movieId).populate("director", "name");
+    const movie = await Movie.findById(movieId).populate("director", "actor");
 
     if (!movie) {
       res.status(404).send({ status: "fail", message: "Movie does not exist" });
