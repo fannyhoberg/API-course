@@ -1,5 +1,7 @@
 import express from "express";
 import movieRouter from "./resources/movie/movie.router";
+import personRouter from "./resources/person/person.router";
+
 const router = express.Router();
 
 /**
@@ -15,6 +17,11 @@ router.get("/", (req, res) => {
  * /movies
  */
 router.use("/movies", movieRouter);
+
+/**
+ * /people
+ */
+router.use("/people", personRouter);
 
 /**
  * Catch-all route handler
