@@ -10,7 +10,7 @@ export interface MovieDocument extends Document {
   genres: string[];
   watched: Date;
   director?: PersonDocument["_id"];
-  actor?: PersonDocument["_id"];
+  actors?: PersonDocument["_id"][];
 }
 
 // Schema for mongoose, same as interface but we have to use mongoose structure
@@ -55,10 +55,12 @@ const MovieSchema: Schema = new Schema<MovieDocument>({
     type: Schema.Types.ObjectId,
     ref: "Person",
   },
-  actor: {
-    type: Schema.Types.ObjectId,
-    ref: "Person",
-  },
+  actors: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Person",
+    },
+  ],
 });
 
 export const Movie = model<MovieDocument>("Movie", MovieSchema);
