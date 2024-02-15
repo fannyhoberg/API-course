@@ -15,7 +15,7 @@ router.get("/:personId", personController.show);
 /**
  * PATCH /people/:personId
  */
-// router.patch("/:personId", personController.update);
+router.patch("/:personId", personController.update);
 
 /**
  * POST /people

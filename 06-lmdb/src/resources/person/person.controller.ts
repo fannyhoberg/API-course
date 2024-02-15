@@ -104,6 +104,37 @@ export const store = async (req: Request, res: Response) => {
 };
 
 /**
+ * Update a person
+ */
+export const update = async (req: Request, res: Response) => {
+  const personId = req.params.personId;
+
+  try {
+    // Update Person
+    const person = await Person.findByIdAndUpdate(personId, req.body);
+
+    res.status(200).send({
+      status: "success",
+      data: person,
+    });
+  } catch (err) {
+    debug("Error thrown when updating person", err);
+    if (err instanceof mongoose.Error.ValidationError) {
+      res.status(400).send({
+        status: "fail",
+        message: err.message,
+      });
+      return;
+    }
+
+    res.status(500).send({
+      status: "error",
+      message: "Error thrown when updating person",
+    });
+  }
+};
+
+/**
  * Delete a person
  */
 export const destroy = async (req: Request, res: Response) => {
