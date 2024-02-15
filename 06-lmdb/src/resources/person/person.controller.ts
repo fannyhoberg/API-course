@@ -102,3 +102,55 @@ export const store = async (req: Request, res: Response) => {
     });
   }
 };
+
+/**
+ * Delete a person
+ */
+export const destroy = async (req: Request, res: Response) => {
+  const personId = req.params.personId;
+
+  try {
+    // Remove the person from any movies they are associated with
+    await Movie.updateMany({ director: personId }, { director: null });
+    await Movie.updateMany(
+      { actors: personId },
+      { $pull: { actors: personId } }
+    );
+
+    /*
+		// Find any movies where person is director and remove that reference
+		const directing = await Movie.find({ director: personId });
+		directing.forEach(async movie => {
+			await movie.updateOne({ director: null });
+		});
+
+		// Find any movies where person is actor and remove that reference
+		const acting = await Movie.find({ acting: personId });
+		acting.forEach(async movie => {
+			await movie.updateOne({ actors: movie.actors?.filter(actor => actor._id !== personId) });
+		});
+		*/
+
+    // Delete person
+    const person = await Person.findByIdAndDelete(personId);
+
+    // If no person was found, report 404
+    if (!person) {
+      res
+        .status(404)
+        .send({ status: "fail", message: "No such person exists" });
+      return;
+    }
+
+    res.send({
+      status: "success",
+      data: null,
+    });
+  } catch (err) {
+    debug("Error thrown when deleting person", err);
+    res.status(500).send({
+      status: "error",
+      message: "Error thrown when deleting person",
+    });
+  }
+};

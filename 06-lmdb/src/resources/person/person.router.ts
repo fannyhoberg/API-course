@@ -13,8 +13,18 @@ router.get("/", personController.index);
 router.get("/:personId", personController.show);
 
 /**
+ * PATCH /people/:personId
+ */
+// router.patch("/:personId", personController.update);
+
+/**
  * POST /people
  */
 router.post("/", personController.store);
+
+/**
+ * DELETE /people
+ */
+router.delete("/:personId", personController.destroy);
 
 export default router;
