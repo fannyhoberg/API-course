@@ -9,11 +9,25 @@ import "./assets/scss/style.scss";
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
 console.log("SOCKET_HOST:", SOCKET_HOST);
 
+// Forms
 const messageEl = document.querySelector("#message") as HTMLInputElement;
 const messageFormEl = document.querySelector(
   "#message-form"
 ) as HTMLFormElement;
+const userNameFormEl = document.querySelector(
+  "#username-form"
+) as HTMLFormElement;
+const usernameInputEl = document.querySelector("#username") as HTMLInputElement;
+
+// Lists
 const messagesEl = document.querySelector("#messages") as HTMLDivElement;
+
+// Views
+const chatView = document.querySelector("#chat-wrapper") as HTMLDivElement;
+const startView = document.querySelector("#start") as HTMLDivElement;
+
+// User Details
+let username: string | null = null;
 
 // Connect to Socket.IO Server
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
@@ -28,13 +42,34 @@ const addMessageToChat = (msg: ChatMessageData, ownMessage = false) => {
   // If the message is from the user add class "own-message"
   if (ownMessage) {
     msgEl.classList.add("own-message");
-  }
 
-  // Set text content of the LI element to the message
-  msgEl.textContent = msg.content;
+    // Set text content of the LI element to the message
+    msgEl.textContent = msg.content;
+
+    // Set content of the LI element to the message
+    msgEl.innerHTML = `<span class="content">${msg.content}</span><br><span class="time">${msg.time}</span>`;
+  } else {
+    // Set text content of the LI element to the message
+    msgEl.textContent = msg.content;
+
+    // Set content of the LI element to the message
+    msgEl.innerHTML = `<span class="user">${msg.user}</span><span class="content">${msg.content}</span><br><span class="time">${msg.time}</span>`;
+  }
 
   // Append the LI element to the messages element
   messagesEl.appendChild(msgEl);
+};
+
+// Show chat view
+const showChatView = () => {
+  startView.classList.add("hide");
+  chatView.classList.remove("hide");
+};
+
+// Show welcome/Start view
+const showWelcomeView = () => {
+  chatView.classList.add("hide");
+  startView.classList.remove("hide");
 };
 
 // Listen for when connection is established
@@ -65,6 +100,25 @@ socket.on("chatMessage", (msg) => {
   addMessageToChat(msg);
 });
 
+// Get username from form and then show chat
+userNameFormEl.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  // 💇
+  const trimmedUsername = usernameInputEl.value.trim();
+
+  // If no username, no join
+  if (!trimmedUsername) {
+    return;
+  }
+
+  // Set username
+  username = trimmedUsername;
+
+  // Show chat view
+  showChatView();
+});
+
 // Send a message to the server when form is submitted
 messageFormEl.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -77,9 +131,13 @@ messageFormEl.addEventListener("submit", (e) => {
     return;
   }
 
+  let timeNow = new Date();
+
   // Construct message payload
   const msg: ChatMessageData = {
+    user: username,
     content: trimmedMessage,
+    time: timeNow.toLocaleTimeString("sv-SE"),
   };
 
   // Send (emit) the message to the server
