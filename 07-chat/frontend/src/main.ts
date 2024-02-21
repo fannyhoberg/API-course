@@ -39,6 +39,9 @@ const addMessageToChat = (msg: ChatMessageData, ownMessage = false) => {
   // Set class of LI to "message"
   msgEl.classList.add("message");
 
+  // Get read-able time
+  const time = new Date(msg.timestamp).toLocaleTimeString();
+
   // If the message is from the user add class "own-message"
   if (ownMessage) {
     msgEl.classList.add("own-message");
@@ -47,13 +50,13 @@ const addMessageToChat = (msg: ChatMessageData, ownMessage = false) => {
     msgEl.textContent = msg.content;
 
     // Set content of the LI element to the message
-    msgEl.innerHTML = `<span class="content">${msg.content}</span><br><span class="time">${msg.time}</span>`;
+    msgEl.innerHTML = `<span class="content">${msg.content}</span><br><span class="time">${time}</span>`;
   } else {
     // Set text content of the LI element to the message
     msgEl.textContent = msg.content;
 
     // Set content of the LI element to the message
-    msgEl.innerHTML = `<span class="user">${msg.user}</span><span class="content">${msg.content}</span><br><span class="time">${msg.time}</span>`;
+    msgEl.innerHTML = `<span class="user">${msg.username}</span><span class="content">${msg.content}</span><br><span class="time">${time}</span>`;
   }
 
   // Append the LI element to the messages element
@@ -131,13 +134,11 @@ messageFormEl.addEventListener("submit", (e) => {
     return;
   }
 
-  let timeNow = new Date();
-
   // Construct message payload
   const msg: ChatMessageData = {
-    user: username,
+    username,
     content: trimmedMessage,
-    time: timeNow.toLocaleTimeString("sv-SE"),
+    timestamp: Date.now(),
   };
 
   // Send (emit) the message to the server

@@ -13,7 +13,7 @@ export interface ClientToServerEvents {
 
 // Message payload
 export interface ChatMessageData {
-  user: string | null;
+  username: string | null;
   content: string;
-  time: string;
+  timestamp: number;
 }
