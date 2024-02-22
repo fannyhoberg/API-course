@@ -63,6 +63,25 @@ const addMessageToChat = (msg: ChatMessageData, ownMessage = false) => {
   messagesEl.appendChild(msgEl);
 };
 
+const addNoticeToChat = (msg: string, timestamp: number) => {
+  const noticeEl = document.createElement("li");
+
+  // Set class of LI to "message"
+  noticeEl.classList.add("notice");
+
+  // Get read-able time
+  const time = new Date(timestamp).toLocaleTimeString();
+
+  // Set content of the LI element to the message
+  noticeEl.innerHTML = `
+			<span class="content">${msg}</span>
+			<span class="time">${time}</span>
+		`;
+
+  // Append the LI element to the messages element
+  messagesEl.appendChild(noticeEl);
+};
+
 // Show chat view
 const showChatView = () => {
   startView.classList.add("hide");
@@ -75,9 +94,35 @@ const showWelcomeView = () => {
   startView.classList.remove("hide");
 };
 
+/**
+ * Socket handlers
+ */
+const handleUserJoinRequestCallback = (success: boolean) => {
+  console.log("Join was successful?", success);
+
+  if (!success) {
+    alert("NO ACCESS 4 U");
+    return;
+  }
+
+  // Show chat view
+  showChatView();
+};
+
 // Listen for when connection is established
 socket.on("connect", () => {
   console.log("💥 Connected to the server", socket.id);
+});
+
+// Listen for when we're reconnected (either due to our or the servers connection)
+socket.io.on("reconnect", () => {
+  console.log("Reconnected to the server");
+
+  // Emit `userJoinRequest`event, but only if we were in the chat previously
+  if (username) {
+    socket.emit("userJoinRequest", username, handleUserJoinRequestCallback);
+    addNoticeToChat("You're reconnected", Date.now());
+  }
 });
 
 // Listen for when server got tired of us
@@ -103,6 +148,13 @@ socket.on("chatMessage", (msg) => {
   addMessageToChat(msg);
 });
 
+// Listen for when a new user joins the chat
+socket.on("userJoined", (username, timestamp) => {
+  console.log("👶🏻 A new user has joined the chat:", username, timestamp);
+
+  addNoticeToChat(`${username} has joined the chat`, timestamp);
+});
+
 // Get username from form and then show chat
 userNameFormEl.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -120,17 +172,7 @@ userNameFormEl.addEventListener("submit", (e) => {
 
   // Emit `userJoinRequest`-event to the server and wait for acknowledgement
   // BEFORE showing the chat view
-  socket.emit("userJoinRequest", username, (success) => {
-    console.log("Join was successful?", success);
-
-    if (!success) {
-      alert("NO ACCESS 4 U");
-      return;
-    }
-
-    // Show chat view
-    showChatView();
-  });
+  socket.emit("userJoinRequest", username, handleUserJoinRequestCallback);
   console.log("Emitted 'userJoinRequest' event to server", username);
 });
 

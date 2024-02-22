@@ -36,6 +36,9 @@ export const handleConnection = (
 		// Always let the user in (for now 😈)
 		// (here we could check the username and deny access if it was already in use)
 		callback(true);
+
+		// broadcast to everyone else that a new user has joined
+		socket.broadcast.emit("userJoined", username, Date.now());
 	});
 
 	// Handle user disconnecting
