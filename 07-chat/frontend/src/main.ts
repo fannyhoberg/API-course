@@ -5,6 +5,7 @@ import {
   ServerToClientEvents,
 } from "@shared/types/SocketTypes";
 import "./assets/scss/style.scss";
+import { Room } from "@shared/types/Models";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
 console.log("SOCKET_HOST:", SOCKET_HOST);
@@ -25,6 +26,7 @@ const messagesEl = document.querySelector("#messages") as HTMLDivElement;
 // Views
 const chatView = document.querySelector("#chat-wrapper") as HTMLDivElement;
 const startView = document.querySelector("#start") as HTMLDivElement;
+const roomsEl = document.querySelector("#room") as HTMLSelectElement;
 
 // User Details
 let username: string | null = null;
@@ -90,8 +92,30 @@ const showChatView = () => {
 
 // Show welcome/Start view
 const showWelcomeView = () => {
-  chatView.classList.add("hide");
+  const connectBtnEl = document.querySelector(
+    "#connectBtn"
+  ) as HTMLButtonElement;
+
+  connectBtnEl.disabled = true;
+  roomsEl.innerHTML = `<option value="" selected>Loading...</option>`;
+
+  // Request a list of rooms from the server
+
+  socket.emit("getRoomList", (rooms: Room[]) => {
+    console.log("These are the rooms:", rooms);
+
+    // Once we get them, populate the dropdown with rooms
+    roomsEl.innerHTML = rooms
+      .map((room) => `<option value="${room.id}">${room.name}</option>`)
+      .join("");
+  });
+
+  // After that, enable the connect button
+  connectBtnEl.disabled = false;
+
+  // Show and remove classlist hide
   startView.classList.remove("hide");
+  chatView.classList.add("hide");
 };
 
 /**
@@ -112,6 +136,8 @@ const handleUserJoinRequestCallback = (success: boolean) => {
 // Listen for when connection is established
 socket.on("connect", () => {
   console.log("💥 Connected to the server", socket.id);
+  // Show welcome view
+  showWelcomeView();
 });
 
 // Listen for when we're reconnected (either due to our or the servers connection)
