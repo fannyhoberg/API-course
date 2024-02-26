@@ -143,6 +143,13 @@ const handleUserJoinRequestCallback = (response: UserJoinResponse) => {
   ) as HTMLHeadingElement;
   chatTitleEl.innerText = response.room.name;
 
+  // list online users
+  const usersOnlineEl = document.querySelector("#online-users") as HTMLElement;
+
+  usersOnlineEl.innerHTML = response.room.users
+    .map((room) => `<li value="${room.id}">${room.username}</li>`)
+    .join("");
+
   // Show chat view
   showChatView();
 };
