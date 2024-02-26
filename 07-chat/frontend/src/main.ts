@@ -227,7 +227,7 @@ messageFormEl.addEventListener("submit", (e) => {
   const trimmedMessage = messageEl.value.trim();
 
   // If no message, no send
-  if (!trimmedMessage) {
+  if (!trimmedMessage || !username || !roomId) {
     return;
   }
 
@@ -236,6 +236,7 @@ messageFormEl.addEventListener("submit", (e) => {
     username,
     content: trimmedMessage,
     timestamp: Date.now(),
+    roomId,
   };
 
   // Send (emit) the message to the server
