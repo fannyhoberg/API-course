@@ -14,6 +14,7 @@ export interface ClientToServerEvents {
   sendChatMessage: (msg: ChatMessageData) => void;
   userJoinRequest: (
     username: string,
+    roomId: string,
     callback: (success: boolean) => void
   ) => void;
 }

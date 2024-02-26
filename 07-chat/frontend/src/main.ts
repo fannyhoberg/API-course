@@ -19,6 +19,7 @@ const userNameFormEl = document.querySelector(
   "#username-form"
 ) as HTMLFormElement;
 const usernameInputEl = document.querySelector("#username") as HTMLInputElement;
+const roomsEl = document.querySelector("#room") as HTMLSelectElement;
 
 // Lists
 const messagesEl = document.querySelector("#messages") as HTMLDivElement;
@@ -26,10 +27,10 @@ const messagesEl = document.querySelector("#messages") as HTMLDivElement;
 // Views
 const chatView = document.querySelector("#chat-wrapper") as HTMLDivElement;
 const startView = document.querySelector("#start") as HTMLDivElement;
-const roomsEl = document.querySelector("#room") as HTMLSelectElement;
 
 // User Details
 let username: string | null = null;
+let roomId: string | null = null;
 
 // Connect to Socket.IO Server
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
@@ -151,8 +152,13 @@ socket.io.on("reconnect", () => {
   console.log("Reconnected to the server");
 
   // Emit `userJoinRequest`event, but only if we were in the chat previously
-  if (username) {
-    socket.emit("userJoinRequest", username, handleUserJoinRequestCallback);
+  if (username && roomId) {
+    socket.emit(
+      "userJoinRequest",
+      username,
+      roomId,
+      handleUserJoinRequestCallback
+    );
     addNoticeToChat("You're reconnected", Date.now());
   }
 });
@@ -191,21 +197,26 @@ socket.on("userJoined", (username, timestamp) => {
 userNameFormEl.addEventListener("submit", (e) => {
   e.preventDefault();
 
-  // 💇
-  const trimmedUsername = usernameInputEl.value.trim();
+  // get username and room
+  roomId = roomsEl.value;
+  username = usernameInputEl.value.trim();
 
-  // If no username, no join
-  if (!trimmedUsername) {
+  // If no username or room, no join
+  if (!username || !roomId) {
     return;
   }
 
-  // Set username
-  username = trimmedUsername;
-
   // Emit `userJoinRequest`-event to the server and wait for acknowledgement
   // BEFORE showing the chat view
-  socket.emit("userJoinRequest", username, handleUserJoinRequestCallback);
-  console.log("Emitted 'userJoinRequest' event to server", username);
+  socket.emit(
+    "userJoinRequest",
+    username,
+    roomId,
+    handleUserJoinRequestCallback
+  );
+  console.log(
+    `Emitted 'userJoinRequest' event to server, username=${username}, roomId=${roomId}`
+  );
 });
 
 // Send a message to the server when form is submitted
