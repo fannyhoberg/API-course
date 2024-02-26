@@ -63,6 +63,9 @@ const addMessageToChat = (msg: ChatMessageData, ownMessage = false) => {
 
   // Append the LI element to the messages element
   messagesEl.appendChild(msgEl);
+
+  // scroll to bottom of the messages list
+  msgEl.scrollIntoView({ behavior: "smooth" });
 };
 
 const addNoticeToChat = (msg: string, timestamp: number) => {
@@ -82,6 +85,9 @@ const addNoticeToChat = (msg: string, timestamp: number) => {
 
   // Append the LI element to the messages element
   messagesEl.appendChild(noticeEl);
+
+  // scroll to bottom of the messages list
+  noticeEl.scrollIntoView({ behavior: "smooth" });
 };
 
 // Show chat view
@@ -102,7 +108,7 @@ const showWelcomeView = () => {
   // Request a list of rooms from the server
 
   socket.emit("getRoomList", (rooms: Room[]) => {
-    console.log("These are the rooms:", rooms);
+    // console.log("These are the rooms:", rooms);
 
     // Once we get them, populate the dropdown with rooms
     roomsEl.innerHTML = rooms
