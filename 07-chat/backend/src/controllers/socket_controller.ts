@@ -40,20 +40,43 @@ export const handleConnection = (
 	socket.on("sendChatMessage", (msg) => {
 		debug("📨 New chat message", socket.id, msg);
 
-		// Broadcast message to everyone connected EXCEPT the sender
+		// Broadcast message to everyone connected (in that toom) EXCEPT the sender
 		socket.to(msg.roomId).emit("chatMessage", msg);
 	});
 
 	// Listen for a user join request
-	socket.on("userJoinRequest", (username, roomId, callback) => {
+	socket.on("userJoinRequest", async (username, roomId, callback) => {
 		debug("User %s wants to join the room %s", username, roomId);
+
+		// Get room from database
+		const room = await prisma.room.findUnique({
+			where: {
+				id: roomId,
+			},
+		});
+
+		// If room was not found, respond with success: false
+		if (!room) {
+			callback({
+				success: false,
+				room: null,
+			});
+			return;
+		}
 
 		// Join room `roomId`
 		socket.join(roomId);
 
-		// Always let the user in (for now 😈)
+		// Respond with room info
 		// (here we could check the username and deny access if it was already in use)
-		callback(true);
+		callback({
+			success: true,
+			room: {
+				id: room.id,
+				name: room.name,
+				users: [],
+			},
+		});
 
 		// Let everyone else in the room know that a new user has joined
 		socket.to(roomId).emit("userJoined", username, Date.now());
