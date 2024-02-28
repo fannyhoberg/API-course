@@ -5,6 +5,7 @@ import { Room, User } from "./Models";
 export interface ServerToClientEvents {
   hello: () => void;
   chatMessage: (msg: ChatMessageData) => void;
+  onlineUsers: (users: User[]) => void;
   userJoined: (username: string, timestamp: number) => void;
   userLeft: (username: string, timestamp: number) => void;
 }

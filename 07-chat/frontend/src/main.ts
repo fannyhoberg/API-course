@@ -6,7 +6,7 @@ import {
   UserJoinResponse,
 } from "@shared/types/SocketTypes";
 import "./assets/scss/style.scss";
-import { Room } from "@shared/types/Models";
+import { Room, User } from "@shared/types/Models";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
 console.log("SOCKET_HOST:", SOCKET_HOST);
@@ -92,6 +92,19 @@ const addNoticeToChat = (msg: string, timestamp: number) => {
   noticeEl.scrollIntoView({ behavior: "smooth" });
 };
 
+// Update online userslist
+
+const updateOnlineUsers = (users: User[]) => {
+  // list online users
+  const usersOnlineEl = document.querySelector(
+    "#online-users"
+  ) as HTMLUListElement;
+
+  usersOnlineEl.innerHTML = users
+    .map((user) => `<li>${user.username}</li>`)
+    .join("");
+};
+
 // Show chat view
 const showChatView = () => {
   startView.classList.add("hide");
@@ -141,14 +154,10 @@ const handleUserJoinRequestCallback = (response: UserJoinResponse) => {
   const chatTitleEl = document.querySelector(
     "#chat-title"
   ) as HTMLHeadingElement;
+
   chatTitleEl.innerText = response.room.name;
 
-  // list online users
-  const usersOnlineEl = document.querySelector("#online-users") as HTMLElement;
-
-  usersOnlineEl.innerHTML = response.room.users
-    .map((room) => `<li value="${room.id}">${room.username}</li>`)
-    .join("");
+  updateOnlineUsers(response.room.users);
 
   // Show chat view
   showChatView();
@@ -198,6 +207,11 @@ socket.on("chatMessage", (msg) => {
    * sets the content + styling and appends it to `messagesEl`
    */
   addMessageToChat(msg);
+});
+
+// Listen for an updated list of online users
+socket.on("onlineUsers", (users) => {
+  updateOnlineUsers(users);
 });
 
 // Listen for when a new user joins the chat

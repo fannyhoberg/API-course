@@ -99,6 +99,9 @@ export const handleConnection = (
 
 		// Let everyone else in the room know that a new user has joined
 		socket.to(roomId).emit("userJoined", username, Date.now());
+
+		// Broadcast a new list of users in the room to everyone else
+		socket.to(roomId).emit("onlineUsers", usersInRoom);
 	});
 
 	// Handle user disconnecting
@@ -124,8 +127,17 @@ export const handleConnection = (
 			},
 		});
 
-		// boradcast a notice to the room that the user has left
+		// Retreieve a list of Users for the Room
+		const usersInRoom = await prisma.user.findMany({
+			where: {
+				roomId: user.roomId,
+			},
+		});
 
+		// broadcast a notice to the room that the user has left
 		io.to(user.roomId).emit("userLeft", user.username, Date.now());
+
+		// Also broadcast a new list of users in the room
+		io.to(user.roomId).emit("onlineUsers", usersInRoom);
 	});
 };
