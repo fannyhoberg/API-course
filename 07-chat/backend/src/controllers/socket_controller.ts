@@ -123,5 +123,9 @@ export const handleConnection = (
 				id: socket.id,
 			},
 		});
+
+		// boradcast a notice to the room that the user has left
+
+		io.to(user.roomId).emit("userLeft", user.username, Date.now());
 	});
 };

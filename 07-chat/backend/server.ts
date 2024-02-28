@@ -36,19 +36,20 @@ io.on("connection", (socket) => {
 });
 
 /**
- * Delete all users from the database
+ * Delete all users from the database 😈
  */
 prisma.user
 	.deleteMany()
 	.then(() => {
-		console.log("Deleted all users");
+		console.log("🧹 Deleted all the users");
+
 		/**
 		 * Listen on provided port, on all network interfaces.
 		 */
 		httpServer.listen(PORT);
 	})
 	.catch((err) => {
-		console.error("Could not delete all the users", err);
+		console.error("🚨 Could not delete all the users 😱", err);
 	});
 
 /**

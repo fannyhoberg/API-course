@@ -207,6 +207,13 @@ socket.on("userJoined", (username, timestamp) => {
   addNoticeToChat(`${username} has joined the chat`, timestamp);
 });
 
+// Listen for when a new user leaves chat
+socket.on("userLeft", (username, timestamp) => {
+  console.log("👋🏻 A user has left the chat:", username, timestamp);
+
+  addNoticeToChat(`${username} has left the chat`, timestamp);
+});
+
 // Get username from form and then show chat
 userNameFormEl.addEventListener("submit", (e) => {
   e.preventDefault();
