@@ -101,7 +101,12 @@ const updateOnlineUsers = (users: User[]) => {
   ) as HTMLUListElement;
 
   usersOnlineEl.innerHTML = users
-    .map((user) => `<li>${user.username}</li>`)
+    // .sort((a) => (a.id === socket.id ? 1 : 0))
+    .map((user) =>
+      user.id === socket.id
+        ? `<li class="me"><span>&#x1f9b8;</span>${user.username}</li>`
+        : `<li><span>&#x1f47d;</span>${user.username}</li>`
+    )
     .join("");
 };
 
