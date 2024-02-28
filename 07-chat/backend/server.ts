@@ -7,7 +7,7 @@ import {
 	ClientToServerEvents,
 	ServerToClientEvents,
 } from "@shared/types/SocketTypes";
-import prisma from "./src/prisma";
+import { deleteAllUsers } from "./src/services/UserService";
 
 // Initialize dotenv so it reads our `.env`-file
 dotenv.config();
@@ -38,8 +38,7 @@ io.on("connection", (socket) => {
 /**
  * Delete all users from the database 😈
  */
-prisma.user
-	.deleteMany()
+deleteAllUsers()
 	.then(() => {
 		console.log("🧹 Deleted all the users");
 

@@ -9,6 +9,12 @@ import {
 } from "@shared/types/SocketTypes";
 import { Room } from "@prisma/client";
 import prisma from "../prisma";
+import {
+	createUser,
+	deleteUser,
+	getUser,
+	getUsersInRoom,
+} from "../services/UserService";
 
 // Create a new debug instance
 const debug = Debug("chat:socket_controller");
@@ -68,23 +74,16 @@ export const handleConnection = (
 		socket.join(roomId);
 
 		// Create a User in the database and set roomId
-		const user = await prisma.user.create({
-			data: {
-				id: socket.id,
-				username: username,
-				roomId: roomId,
-			},
+		const user = await createUser({
+			id: socket.id,
+			username: username,
+			roomId: roomId,
 		});
 
-		console.log("This is user: ", user);
+		debug("Created user: ", user);
 
 		// Retreieve a list of Users for the Room
-		const usersInRoom = await prisma.user.findMany({
-			where: {
-				roomId: roomId,
-			},
-		});
-		console.log("This is usersInRoom: ", usersInRoom);
+		const usersInRoom = await getUsersInRoom(roomId);
 
 		// Respond with room info
 		// (here we could check the username and deny access if it was already in use)
@@ -109,11 +108,7 @@ export const handleConnection = (
 		debug("👋🏻 A user disconnected", socket.id);
 
 		// Find user in ordet to know wich room he/she was in
-		const user = await prisma.user.findUnique({
-			where: {
-				id: socket.id,
-			},
-		});
+		const user = await getUser(socket.id);
 
 		// If user didn't exist, do nothing
 		if (!user) {
@@ -121,18 +116,10 @@ export const handleConnection = (
 		}
 
 		// remove user
-		await prisma.user.delete({
-			where: {
-				id: socket.id,
-			},
-		});
+		await deleteUser(socket.id);
 
 		// Retreieve a list of Users for the Room
-		const usersInRoom = await prisma.user.findMany({
-			where: {
-				roomId: user.roomId,
-			},
-		});
+		const usersInRoom = await getUsersInRoom(user.roomId);
 
 		// broadcast a notice to the room that the user has left
 		io.to(user.roomId).emit("userLeft", user.username, Date.now());
