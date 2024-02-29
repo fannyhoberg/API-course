@@ -17,26 +17,26 @@ export interface ClientToServerEvents {
   userJoinRequest: (
     username: string,
     roomId: string,
-    callback: (result: UserJoinResponse) => void
+    callback: (response: UserJoinResponse) => void
   ) => void;
 }
 
 // Message payload
 export interface ChatMessageData {
-  // id: string;
-  username: string;
   content: string;
-  timestamp: number;
   roomId: string;
+  timestamp: number;
+  username: string;
 }
 
 // Room with users
-export interface RoomWithUsers extends Room {
+export interface RoomInfo extends Room {
+  messages: ChatMessageData[];
   users: User[];
 }
 
 // User join Response
 export interface UserJoinResponse {
   success: boolean;
-  room: RoomWithUsers | null;
+  room: RoomInfo | null;
 }

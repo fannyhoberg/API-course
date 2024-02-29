@@ -14,7 +14,7 @@ import {
 	getUsersInRoom,
 } from "../services/UserService";
 import { getRoom, getRooms } from "../services/RoomService";
-import { createMessage, getMessagesInRoom } from "../services/MessageService";
+import { createMessage, getLatestMessages } from "../services/MessageService";
 
 // Create a new debug instance
 const debug = Debug("chat:socket_controller");
@@ -42,17 +42,13 @@ export const handleConnection = (
 	socket.on("sendChatMessage", async (msg) => {
 		debug("📨 New chat message", socket.id, msg);
 
-		const message = await createMessage({
-			// id: msg.id,
-			username: msg.username,
-			content: msg.content,
-			roomId: msg.roomId,
-			timestamp: msg.timestamp,
-		});
-		debug("This is message: ", message);
-
 		// Broadcast message to everyone connected (in that toom) EXCEPT the sender
 		socket.to(msg.roomId).emit("chatMessage", msg);
+
+		// THEN we save the message to the database, so that message broadcasts faster
+		// Save message to db
+		await createMessage(msg);
+		debug("🏊‍♀️ Saved chat message");
 	});
 
 	// Listen for a user join request
@@ -86,20 +82,20 @@ export const handleConnection = (
 		// Retreieve a list of Users for the Room
 		const usersInRoom = await getUsersInRoom(roomId);
 
+		// Retrieve messages sent to the Room
+		const messages = await getLatestMessages(roomId, 1.25 * 60 * 60);
+
 		// Respond with room info
-		// (here we could check the username and deny access if it was already in use)
+		// (here we could also check the username and deny access if it was already in use)
 		callback({
 			success: true,
 			room: {
 				id: room.id,
 				name: room.name,
-				users: usersInRoom, // send the user the list of users in the room
+				messages,
+				users: usersInRoom, // Send the user the list of users in the room
 			},
 		});
-
-		// // Get all messages (past 24 HR)
-		// const messages = await getMessagesInRoom(roomId);
-		// console.log("Getting all messages", messages);
 
 		// Let everyone else in the room know that a new user has joined
 		socket.to(roomId).emit("userJoined", username, Date.now());

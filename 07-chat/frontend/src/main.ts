@@ -32,11 +32,22 @@ const startView = document.querySelector("#start") as HTMLDivElement;
 // User Details
 let username: string | null = null;
 let roomId: string | null = null;
-// let messageId: string | null = null;
 
 // Connect to Socket.IO Server
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
   io(SOCKET_HOST);
+
+// Add multiple messages to the chat
+const addMessagesToChat = (msgs: ChatMessageData[]) => {
+  console.log("Adding messages to chat...");
+
+  // Clear any previous messages from the chat
+  (messageEl.innerHTML = ""),
+    // Loop over messages and add them to the chat
+    msgs.forEach((msg) => {
+      addMessageToChat(msg);
+    });
+};
 
 const addMessageToChat = (msg: ChatMessageData, ownMessage = false) => {
   const msgEl = document.createElement("li");
@@ -163,6 +174,10 @@ const handleUserJoinRequestCallback = (response: UserJoinResponse) => {
 
   chatTitleEl.innerText = response.room.name;
 
+  // Add message history to chat
+  console.log("Message history: ", response.room.messages);
+  addMessagesToChat(response.room.messages);
+
   updateOnlineUsers(response.room.users);
 
   // Show chat view
@@ -223,16 +238,6 @@ socket.on("onlineUsers", (users) => {
 // Listen for when a new user joins the chat
 socket.on("userJoined", (username, timestamp) => {
   console.log("👶🏻 A new user has joined the chat:", username, timestamp);
-
-  // Add each message to the chat interface
-  // messages.forEach((msg) => {
-  //   addMessageToChat({
-  //     username: msg.username, // Anpassa till det faktiska fältet för användarnamnet i ditt meddelandeobjekt
-  //     content: msg.content,
-  //     timestamp: msg.timestamp, // Anpassa till det faktiska fältet för tidsstämpel i ditt meddelandeobjekt
-  //     roomId: msg.roomId, // Anpassa till det faktiska fältet för rum-ID i ditt meddelandeobjekt
-  //   });
-  // });
 
   addNoticeToChat(`${username} has joined the chat`, timestamp);
 });
