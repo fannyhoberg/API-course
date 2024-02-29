@@ -10,3 +10,11 @@ export interface User {
   username: string;
   roomId: string;
 }
+
+// export interface Message {
+//   id: string;
+//   username: string;
+//   content: string;
+//   roomId: string;
+//   timestamp: string;
+// }

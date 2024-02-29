@@ -7,14 +7,14 @@ import {
 	ClientToServerEvents,
 	ServerToClientEvents,
 } from "@shared/types/SocketTypes";
-import { Room } from "@prisma/client";
-import prisma from "../prisma";
 import {
 	createUser,
 	deleteUser,
 	getUser,
 	getUsersInRoom,
 } from "../services/UserService";
+import { getRoom, getRooms } from "../services/RoomService";
+import { createMessage, getMessagesInRoom } from "../services/MessageService";
 
 // Create a new debug instance
 const debug = Debug("chat:socket_controller");
@@ -32,19 +32,24 @@ export const handleConnection = (
 
 	// Listen for room list request
 	socket.on("getRoomList", async (callback) => {
-		const allRooms = await prisma.room.findMany({
-			orderBy: {
-				name: "asc",
-			},
-		});
+		const allRooms = await getRooms();
 		debug("These are the rooms: ", allRooms);
 
 		callback(allRooms);
 	});
 
 	// Listen for incoming chat messages
-	socket.on("sendChatMessage", (msg) => {
+	socket.on("sendChatMessage", async (msg) => {
 		debug("📨 New chat message", socket.id, msg);
+
+		const message = await createMessage({
+			// id: msg.id,
+			username: msg.username,
+			content: msg.content,
+			roomId: msg.roomId,
+			timestamp: msg.timestamp,
+		});
+		debug("This is message: ", message);
 
 		// Broadcast message to everyone connected (in that toom) EXCEPT the sender
 		socket.to(msg.roomId).emit("chatMessage", msg);
@@ -55,11 +60,7 @@ export const handleConnection = (
 		debug("User %s wants to join the room %s", username, roomId);
 
 		// Get room from database
-		const room = await prisma.room.findUnique({
-			where: {
-				id: roomId,
-			},
-		});
+		const room = await getRoom(roomId);
 
 		// If room was not found, respond with success: false
 		if (!room) {
@@ -95,6 +96,10 @@ export const handleConnection = (
 				users: usersInRoom, // send the user the list of users in the room
 			},
 		});
+
+		// // Get all messages (past 24 HR)
+		// const messages = await getMessagesInRoom(roomId);
+		// console.log("Getting all messages", messages);
 
 		// Let everyone else in the room know that a new user has joined
 		socket.to(roomId).emit("userJoined", username, Date.now());

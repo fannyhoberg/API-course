@@ -11,11 +11,22 @@ model Room {
   id        String      @id @default(auto()) @map("_id") @db.ObjectId
   name      String      @unique
   users     User[]
+  messages  Message[]
 }
 
 model User {
-  id          String      @id @map("_id")
-  username    String
-  roomId      String      @db.ObjectId
-  room        Room        @relation(fields: [roomId], references: [id])
+  id        String      @id @map("_id")
+  username  String
+  roomId    String      @db.ObjectId
+  room      Room        @relation(fields: [roomId], references: [id])
 }
+
+model Message {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  roomId    String      @db.ObjectId
+  room      Room        @relation(fields: [roomId], references: [id])
+  timestamp Int
+  username  String
+}
+

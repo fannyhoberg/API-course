@@ -32,6 +32,7 @@ const startView = document.querySelector("#start") as HTMLDivElement;
 // User Details
 let username: string | null = null;
 let roomId: string | null = null;
+// let messageId: string | null = null;
 
 // Connect to Socket.IO Server
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
@@ -222,6 +223,16 @@ socket.on("onlineUsers", (users) => {
 // Listen for when a new user joins the chat
 socket.on("userJoined", (username, timestamp) => {
   console.log("👶🏻 A new user has joined the chat:", username, timestamp);
+
+  // Add each message to the chat interface
+  // messages.forEach((msg) => {
+  //   addMessageToChat({
+  //     username: msg.username, // Anpassa till det faktiska fältet för användarnamnet i ditt meddelandeobjekt
+  //     content: msg.content,
+  //     timestamp: msg.timestamp, // Anpassa till det faktiska fältet för tidsstämpel i ditt meddelandeobjekt
+  //     roomId: msg.roomId, // Anpassa till det faktiska fältet för rum-ID i ditt meddelandeobjekt
+  //   });
+  // });
 
   addNoticeToChat(`${username} has joined the chat`, timestamp);
 });
