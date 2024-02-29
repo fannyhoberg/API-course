@@ -42,7 +42,7 @@ const addMessagesToChat = (msgs: ChatMessageData[]) => {
   console.log("Adding messages to chat...");
 
   // Clear any previous messages from the chat
-  (messageEl.innerHTML = ""),
+  (messagesEl.innerHTML = ""),
     // Loop over messages and add them to the chat
     msgs.forEach((msg) => {
       addMessageToChat(msg);
