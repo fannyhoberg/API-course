@@ -5,10 +5,10 @@
 const typeDefs = `#graphql
 	# Comments in GraphQL strings (such as this one) start with the hash (#) symbol.
 
-type Publisher {
+	type Publisher {
 	id: Int!
 	name: String!
-}
+	}
 
 	type Author {
 		id: Int!
@@ -31,6 +31,10 @@ type Publisher {
 		publishers: [Publisher!]
 		authors: [Author!]
 		books: [Book!]
+
+		book(id: Int!): Book
+		author(id:Int!): Author
+		publisher(id: Int): Publisher
 
 	}
 `;
